@@ -109,3 +109,22 @@ end
 		t.Fatalf("Expected %v, but %v:", expected, goms)
 	}
 }
+
+func TestGomfile5(t *testing.T) {
+	filename, err := tempGomfile(`
+gom 'github.com/mattn/gom', :fork => 'github.com/dicefm/gom'
+`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	goms, err := parseGomfile(filename)
+	if err != nil {
+		t.Fatal(err)
+	}
+	expected := []Gom{
+		{name: "github.com/mattn/gom", options: map[string]interface{}{"fork": "github.com/dicefm/gom"}},
+	}
+	if !reflect.DeepEqual(goms, expected) {
+		t.Fatalf("Expected %v, but %v:", expected, goms)
+	}
+}
