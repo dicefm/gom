@@ -259,7 +259,11 @@ func isDir(p string) bool {
 }
 
 func install(args []string) error {
-	allGoms, err := parseGomfile("Gomfile")
+	return installFromGom("Gomfile", args)
+}
+
+func installFromGom(path string, args []string) error {
+	allGoms, err := parseGomfile()
 	if err != nil {
 		return err
 	}
@@ -311,7 +315,17 @@ func install(args []string) error {
 		}
 	}
 
-	// 4. Build and install
+	// 4. Recurse over Gomfile
+	for _, gom := range goms {
+		file := vendorFolder + os.PathSeparator + gom.name + os.PathSeparator + "Gomfile"
+		if isFile(file) {
+			if err := installFromGom(file); err != nil {
+				return err
+			}
+		}
+	}
+
+	// 5. Build and install
 	for _, gom := range goms {
 		err = gom.Build(args)
 		if err != nil {
